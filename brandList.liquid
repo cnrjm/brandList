@@ -1,0 +1,121 @@
+<div class="page-width page-content">
+  <header class="section-header text-center">
+    <h1 class="section-header__title">All Brands</h1>
+  </header>
+
+  <div class="brand-nav">
+    <ul class="brand-nav__list list-unstyled">
+      {% assign alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" | split: "" %}
+      {% for letter in alphabet %}
+        <li class="brand-nav__item">
+          <a href="#brand-{{ letter }}" class="brand-nav__link">{{ letter }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="brand-list">
+    {% assign excluded_brands = "Include any vendors you don't want to include here split by commas" | split: "," %}
+    {% for letter in alphabet %}
+      {% assign has_brands = false %}
+      {% for vendor in shop.vendors %}
+        {% unless excluded_brands contains vendor %}
+          {% assign first_letter = vendor | slice: 0 | upcase %}
+          {% if first_letter == letter %}
+            {% assign has_brands = true %}
+            {% break %}
+          {% endif %}
+        {% endunless %}
+      {% endfor %}
+
+      {% if has_brands %}
+        <div id="brand-{{ letter }}" class="brand-list__section">
+          <h2 class="brand-list__title">{{ letter }}</h2>
+          <ul class="brand-list__items list-unstyled">
+            {% for vendor in shop.vendors %}
+              {% unless excluded_brands contains vendor %}
+                {% assign first_letter = vendor | slice: 0 | upcase %}
+                {% if first_letter == letter %}
+                  {% assign vendor_handle = vendor | handleize %}
+                  {% assign collection = collections[vendor_handle] %}
+                  <li class="brand-list__item">
+                    <a href="/collections/{{ vendor_handle }}" class="brand-list__link">
+                      {{ vendor }} {% if collection.products_count.size > 0 %}({{ collection.products_count }}){% endif %}
+                    </a>
+                  </li>
+                {% endif %}
+              {% endunless %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+  $('a[href^="#"]').on('click', function(event) {
+    var target = $(this.getAttribute('href'));
+    if (target.length) {
+      event.preventDefault();
+      $('html, body').animate({
+        scrollTop: target.offset().top
+      }, 800);
+    }
+  });
+});
+</script>
+
+<style>
+.brand-nav {
+  margin-bottom: 30px;
+}
+
+.brand-nav__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.brand-nav__item {
+  margin: 5px;
+}
+
+.brand-nav__link {
+  display: block;
+  padding: 5px 10px;
+  color: #333;
+  text-decoration: none;
+}
+
+.brand-list__section {
+  margin-bottom: 40px;
+}
+
+.brand-list__title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ccc;
+}
+
+.brand-list__items {
+  column-count: 3;
+  column-gap: 20px;
+}
+
+.brand-list__item {
+  margin-bottom: 5px;
+}
+
+.brand-list__link {
+  color: #333;
+  text-decoration: none;
+}
+</style>
